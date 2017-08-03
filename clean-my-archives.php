@@ -3,7 +3,7 @@
  * Plugin Name: Clean My Archives
  * Plugin URI:  http://themehybrid.com/plugins/clean-my-archives
  * Description: A plugin that displays a full archive of posts by month and year with the <code>[clean-my-archives]</code> shortcode.
- * Version:     1.1.0-dev
+ * Version:     1.0.0
  * Author:      Justin Tadlock
  * Author URI:  http://justintadlock.com
  *
@@ -22,7 +22,7 @@
  * to the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
  * @package   CleanMyArchives
- * @version   1.1.0
+ * @version   1.0.0
  * @author    Justin Tadlock <justin@justintadlock.com>
  * @copyright Copyright (c) 2008 - 2015, Justin Tadlock
  * @link      http://themehybrid.com/plugins/clean-my-archives
@@ -41,14 +41,14 @@ add_action( 'plugins_loaded', 'clean_my_archives_setup' );
  */
 function clean_my_archives_setup() {
 
-	// Load translations.
-	load_plugin_textdomain( 'clean-my-archives', false, trailingslashit( dirname( plugin_basename( __FILE__ ) ) ) . 'languages' );
+    // Load translations.
+    load_plugin_textdomain( 'clean-my-archives', false, trailingslashit( dirname( plugin_basename( __FILE__ ) ) ) . 'languages' );
 
-	// Register shortcodes.
-	add_action( 'init', 'clean_my_archives_shortcodes' );
+    // Register shortcodes.
+    add_action( 'init', 'clean_my_archives_shortcodes' );
 
-	// Delete the cache when a post is saved.
-	add_action( 'save_post', 'clean_my_archives_delete_cache' );
+    // Delete the cache when a post is saved.
+    add_action( 'save_post', 'clean_my_archives_delete_cache' );
 }
 
 /**
@@ -60,8 +60,8 @@ function clean_my_archives_setup() {
  */
 function clean_my_archives_shortcodes() {
 
-	// Add [clean-my-archives] shortcode.
-	add_shortcode( 'clean-my-archives', 'clean_my_archives' );
+    // Add [clean-my-archives] shortcode.
+    add_shortcode( 'clean-my-archives', 'clean_my_archives' );
 }
 
 /**
@@ -74,121 +74,129 @@ function clean_my_archives_shortcodes() {
  */
 function clean_my_archives( $attr = array() ) {
 
-	// Set up some default variables that need to be empty.
-	$clean = $current_year = $current_month = $current_day = '';
-	$cache = array();
+    // Set up some default variables that need to be empty.
+    $clean         = '';
+    $current_year  = '';
+    $current_month = '';
+    $current_day   = '';
+    $cache         = array();
 
-	// Default arguments.
-	$defaults = array(
-		'limit'     => -1,
-		'year'      => '',
-		'month'     => '',
-		'post_type' => 'post',
-		'order'     => 'DESC'
-	);
+    // Default arguments.
+    $defaults = array(
+        'limit'     => -1,
+        'year'      => '',
+        'month'     => '',
+        'post_type' => 'post',
+        'comment_count' =>'true',
+        'bootstrap' =>'false'
+    );
 
-	$attr = shortcode_atts( $defaults, $attr, 'clean-my-archives' );
+    $attr = shortcode_atts( $defaults, $attr, 'clean-my-archives' );
 
-	// Set up some arguments to pass to WP_Query.
-	$args = array(
-		'posts_per_page'      => intval( $attr['limit'] ),
-		'year'                => $attr['year'] ? absint( $attr['year'] ) : '',
-		'monthnum'            => $attr['month'] ? absint( $attr['month'] ) : '',
-		'post_type'           => is_array( $attr['post_type'] ) ? $attr['post_type'] : explode( ',', $attr['post_type'] ),
-		'order'               => in_array( $attr['order'], array( 'ASC', 'DESC' ) ) ? $attr['order'] : 'DESC',
-		'ignore_sticky_posts' => true,
-	);
+    // Set up some arguments to pass to WP_Query.
+    $args = array(
+        'posts_per_page'      => intval( $attr['limit'] ),
+        'year'                => $attr['year'] ? absint( $attr['year'] ) : '',
+        'monthnum'            => $attr['month'] ? absint( $attr['month'] ) : '',
+        'post_type'           => is_array( $attr['post_type'] ) ? $attr['post_type'] : explode( ',', $attr['post_type'] ),
+        'ignore_sticky_posts' => true,
+    );
 
-	// Create a unique key for this particular set of archives.
-	$key = md5( serialize( array_values( $args ) ) );
+    ($attr['bootstrap'] == 'true') ? $ul = '<ul class="list-unstyled">': $ul  = '<ul>';
 
-	// Check for a cached archives.
-	$cache = wp_cache_get( 'clean_my_archives' );
+    // Create a unique key for this particular set of archives.
+    $key = md5( serialize( array_values( $args ) ) );
 
-	// If there is a cached archive, return it instead of doing all the work we've already done.
-	if ( is_array( $cache ) && ! empty( $cache[ $key ] ) )
-		return $cache[ $key ];
+    // Check for a cached archives.
+    $cache = wp_cache_get( 'clean_my_archives' );
 
-	// Query posts from the database.
-	$loop = new WP_Query( $args );
+    // If there is a cached archive, return it instead of doing all the work we've already done.
+    if ( is_array( $cache ) && ! empty( $cache[ $key ] ) )
+        return $cache[ $key ];
 
-	// If posts were found, format them for output.
-	if ( $loop->have_posts() ) {
+    // Query posts from the database.
+    $loop = new WP_Query( $args );
 
-		// Loop through the individual posts.
-		while ( $loop->have_posts() ) {
+    // If posts were found, format them for output.
+    if ( $loop->have_posts() ) {
 
-			// Set up the post.
-			$loop->the_post();
+        // Loop through the individual posts.
+        while ( $loop->have_posts() ) {
 
-			// Get the post's year and month. We need this to compare it with the previous post date.
-			$year   = get_the_time( 'Y' );
-			$month  = get_the_time( 'm' );
-			$daynum = get_the_time( 'd' );
+            // Set up the post.
+            $loop->the_post();
 
-			// If the current date doesn't match this post's date, we need extra formatting.
-			if ( $current_year !== $year || $current_month !== $month ) {
+            // Get the post's year and month. We need this to compare it with the previous post date.
+            $year   = get_the_time( 'Y' );
+            $month  = get_the_time( 'm' );
+            $daynum = get_the_time( 'd' );
 
-				// Close the list if this isn't the first post.
-				if ( $current_month && $current_year )
-					$clean .= '</ul>';
+            // If the current date doesn't match this post's date, we need extra formatting.
+            if ( $current_year !== $year || $current_month !== $month ) {
 
-				// Set the current year and month to this post's year and month.
-				$current_year  = $year;
-				$current_month = $month;
-				$current_day   = '';
+                // Close the list if this isn't the first post.
+                if ( $current_month && $current_year )
+                    $clean .= '</ul>';
 
-				// Add a heading with the month and year and link it to the monthly archive.
-				$clean .= sprintf(
-					'<h2 class="month-year"><a href="%s">%s</a></h2>',
-					esc_url( get_month_link( $current_year, $current_month ) ),
-					esc_html( get_the_time( __( 'F Y', 'clean-my-archives' ) ) )
-				);
+                // Set the current year and month to this post's year and month.
+                $current_year  = $year;
+                $current_month = $month;
+                $current_day   = '';
 
-				// Open a new unordered list.
-				$clean .= '<ul>';
-			}
+                // Add a heading with the month and year and link it to the monthly archive.
+                $clean .= sprintf(
+                    '<h2 class="month-year"><a href="%s">%s</a></h2>',
+                    esc_url( get_month_link( $current_year, $current_month ) ),
+                    esc_html( get_the_time( __( 'F Y', 'clean-my-archives' ) ) )
+                );
 
-			// Get the post's day.
-			$day = sprintf( '<span class="day">%s</span>', get_the_time( esc_html__( 'd:', 'clean-my-archives' ) ) );
+                // Open a new unordered list.
+                $clean .= $ul;
+            }
 
-			// Translators: %d is the comment count.
-			$comments_num = sprintf( esc_html__( '(%d)', 'clean-my-archives' ), get_comments_number() );
-			$comments     = sprintf( '<span class="comments-number">%s</span>',  $comments_num );
+            // Get the post's day.
+            $day = sprintf( '<span class="day">%s</span>', get_the_time( esc_html__( 'd:', 'clean-my-archives' ) ) );
 
-			// Check if there's a duplicate day so we can add a class.
-			$duplicate_day = $current_day && $daynum === $current_day ? ' class="day-duplicate"' : '';
-			$current_day   = $daynum;
+            // Translators: %d is the comment count.
+            $comments_num = sprintf( esc_html__( '(%d)', 'clean-my-archives' ), get_comments_number() );
 
-			// Add the post list item to the formatted archives.
-			$clean .= the_title(
-				sprintf( '<li%s>%s <a href="%s" rel="bookmark">', $duplicate_day, $day, esc_url( get_permalink() ) ),
-				sprintf( '</a> %s</li>', $comments ),
-				false
-			);
-		}
+            //Check to see if comment count is true
+            ($attr['comment_count']== 'true') ? $comments = sprintf( '<span class="comments-number">%s</span>',  $comments_num ): $comments  = '';
 
-		// Close the final unordered list.
-		$clean .= '</ul>';
-	}
 
-	// Wrap the list in a `<div>`.
-	if ( $clean )
-		$clean = sprintf( '<div class="clean-my-archives">%s</div>', $clean );
+            // Check if there's a duplicate day so we can add a class.
+            $duplicate_day = $current_day && $daynum === $current_day ? ' class="day-duplicate"' : '';
+            $current_day   = $daynum;
 
-	// Reset the query to the page's original query.
-	wp_reset_postdata();
+            // Add the post list item to the formatted archives.
+            $clean .= the_title(
+                sprintf( '<li%s>%s <a href="%s" rel="bookmark">', $duplicate_day, $day, esc_url( get_permalink() ) ),
+                sprintf( '</a> %s</li>', $comments ),
+                false
+            );
+        }
 
-	// Make sure $cache is an array.
-	if ( ! is_array( $cache ) )
-		$cache = array();
+        // Close the final unordered list.
+        $clean .= '</ul>';
+    }
 
-	// Set the cache for the plugin, so caching plugins can make this super fast.
-	$cache[ $key ] = $clean;
-	wp_cache_set( 'clean_my_archives', $cache );
+    // Wrap the list in a `<div>`.
+    if ( $clean )
+        $clean = sprintf( '<div class="clean-my-archives">%s</div>', $clean );
 
-	// Return the formatted archives.
-	return $clean;
+    // Reset the query to the page's original query.
+    wp_reset_postdata();
+
+    // Make sure $cache is an array.
+    if ( ! is_array( $cache ) )
+        $cache = array();
+
+    // Set the cache for the plugin, so caching plugins can make this super fast.
+    $cache[ $key ] = $clean;
+    wp_cache_set( 'clean_my_archives', $cache );
+
+    // Return the formatted archives.
+    return $clean;
 }
 
 /**
@@ -199,5 +207,5 @@ function clean_my_archives( $attr = array() ) {
  * @return void
  */
 function clean_my_archives_delete_cache() {
-	wp_cache_delete( 'clean_my_archives' );
+    wp_cache_delete( 'clean_my_archives' );
 }

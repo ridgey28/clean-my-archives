@@ -25,7 +25,7 @@ If you need professional plugin support from me, the plugin author, you can acce
 
 ### Plugin Development
 
-If you're a theme author, plugin author, or just a code hobbyist, you can follow the development of this plugin on it's [GitHub repository](https://github.com/justintadlock/clean-my-archives). 
+If you're a theme author, plugin author, or just a code hobbyist, you can follow the development of this plugin on it's [GitHub repository](https://github.com/justintadlock/clean-my-archives).
 
 ### Donations
 
@@ -54,41 +54,49 @@ Of course, there are some other configuration options. Examples follow.
 
 #### Limit the number of posts with the `limit` parameter:
 
-	[clean-my-archives limit="100"]
-	
-#### Reverse the order with the `order` parameter (default is `DESC`):
-	
-	[clean-my-archives order="ASC"]
+    [clean-my-archives limit="100"]
 
-	[clean-my-archives order="DESC"]
+#### Reverse the order with the `order` parameter (default is `DESC`):
+
+    [clean-my-archives order="ASC"]
+
+    [clean-my-archives order="DESC"]
 
 #### Use the `year` parameter to limit to a year:
 
-	[clean-my-archives year="2013"]
+    [clean-my-archives year="2013"]
 
 #### Use the `month` parameter to limit by month:
 
-	[clean-my-archives month="12"]
+    [clean-my-archives month="12"]
 
 #### Load specific post types with the `post_type` parameter
 
-	[clean-my-archives post_type="post"]
+    [clean-my-archives post_type="post"]
 
-	[clean-my-archives post_type="post, page"]
+    [clean-my-archives post_type="post, page"]
 
 ### Does it support pagination?
 
 Sort of.  Technically, it doesn't.  However, WordPress pages support pagination.  So, you could enter the following in your page editor to paginate by year.
 
-	[clean-my-archives year="2013"]
+    [clean-my-archives year="2013"]
 
-	<!-- nextpage -->
+    <!-- nextpage -->
 
-	[clean-my-archives year="2012"]
+    [clean-my-archives year="2012"]
 
-	<!-- nextpage -->
+    <!-- nextpage -->
 
-	[clean-my-archives year="2011"]
+    [clean-my-archives year="2011"]
+
+#### Added bootstrap <ul> styling (default false - display ordinary ul)
+
+[clean-my-archives bootstrap=true]
+
+#### To remove comment count (default true - show)
+
+[clean-my-archives comment_count=false]
 
 == Screenshots ==
 
