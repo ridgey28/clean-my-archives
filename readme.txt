@@ -92,11 +92,11 @@ Sort of.  Technically, it doesn't.  However, WordPress pages support pagination.
 
 #### Added bootstrap <ul> styling (default false - display ordinary ul)
 
-[clean-my-archives bootstrap=true]
+    [clean-my-archives bootstrap="true"]
 
 #### To remove comment count (default true - show)
 
-[clean-my-archives comment_count=false]
+    [clean-my-archives comment_count="false"]
 
 == Screenshots ==
 

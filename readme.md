@@ -48,11 +48,11 @@ However, there are some parameters you can use.  The following are examples of t
 
 #### Added bootstrap ul styling (default false - display ordinary ul):
 
-    [clean-my-archives bootstrap=true]
+    [clean-my-archives bootstrap="true"]
 
 #### To remove comment count (default true - show):
 
-    [clean-my-archives comment_count=false]
+    [clean-my-archives comment_count="false"]
 
 ## Professional Support
 
