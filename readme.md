@@ -46,13 +46,13 @@ However, there are some parameters you can use.  The following are examples of t
     <!-- nextpage -->
     [clean-my-archives year="2011"]
 
-#### Added bootstrap ul styling (default false - display ordinary ul)
+#### Added bootstrap ul styling (default false - display ordinary ul):
 
-[clean-my-archives bootstrap=true]
+    [clean-my-archives bootstrap=true]
 
-#### To remove comment count (default true - show)
+#### To remove comment count (default true - show):
 
-[clean-my-archives comment_count=false]
+    [clean-my-archives comment_count=false]
 
 ## Professional Support
 
